@@ -1,5 +1,5 @@
 {
-	"name": "ibrows/newsletter-bundle",
+	"name": "success/newsletter-bundle",
 	"type": "symfony-bundle",
 	"description": "Symfony NewsletterBundle",
 	"keywords": ["Newsletter", "iBROWS"],
