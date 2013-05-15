@@ -1,0 +1,127 @@
+newsletter:
+  subscriber: Editar destinatario del Newsletter de "%name%"
+  unsubscribe: Desuscribir e-Mail "%email%"
+  settings: Editar la configuración del Newsletter de "%name%"
+  name: Nombre
+  created_at: Creado
+  design: Diseño
+  testmail: Test Mail
+  overview: Sobreescribir
+  statistic: Estadisticas
+  block:
+    clone: Clonar
+    add: Agregar
+    new: Nuevo Bloque
+    provider:
+      'ibrows_newsletter.block.provider.textarea':
+        name: Textos
+      'ibrows_newsletter.block.provider.image': 
+        name: Imagen
+      'ibrows_newsletter.block.provider.textareaandimage': 
+        name: Texto con Imagen
+        textwidth: Ancho de Texto
+        imagewidth: Ancho de la Imagen
+  layout:
+    index:
+      title: Bienvenidos al Newsletter de Agrotemario    
+  wizard:
+    meta:       Metadata
+    edit:       Editar
+    subscriber: Suscriptor
+    settings:   Configuracion
+    summary:    Resumen
+  create: Nuevo Newsletter
+  list: Newsletter
+  edit: Editar Newsletter "%name%"
+  summary: Resumen del Newsletter "%name%"
+  blocks: Bloques
+  dialog:
+    abort: Abortar
+  gendertitle:
+    male:
+      formal: Estimado Sr. %subscriber.lastname%
+      informal: Hola %subscriber.firstname%
+    female:
+      formal: Estimado Sra. %subscriber.lastname%
+      informal: Hola %subscriber.firstname%
+  error:
+    mail: "No se ha podido enviar el e-mail: %message%"
+  generate:   
+    mail: Comenzar a Enviar
+
+mandant:
+  admin: Configuracion
+  edit: Editar cliente %name%
+  general: Configuracion General
+  settings: Configuración de correo por defecto
+
+  dialog:
+    abort: abbrechen | Abortar
+  gendertitle:
+    male:
+      formal: Estimado Sr. %subscriber.lastname%
+      informal: Hola %subscriber.firstname%
+    female:
+      formal: Estimada Sra. %subscriber.lastname%
+      informal: Hola %subscriber.firstname%
+  error:
+    mail: "No se ha podido enviar el mail: %message%"
+  generate:   
+    mail: Comenzaremos a enviar
+
+user:
+  logout: Salir
+
+subscriber:
+  list: Destinatario
+  firstname: Nombre
+  lastname: Apellido
+  company: Empresa
+  email: E-Mail
+  groups: Grupos
+  multiselect:
+    selectable: Vorhandene Empfänger | Selectable
+    selected:   Ausgewählte Empfänger | Selected
+
+design:
+  create: Nuevo Diseño
+  list: Templates
+  preview: Vista Previa
+  name: Nombre
+  created_at: Creado el
+  edit: Editar Diseño
+
+email: E-Mail
+
+user:
+  logout: Salir
+
+statistic:
+  title: Estadisticas del Newsletter "%name%"
+  show: Estadisticas
+  readpiechart:
+    read: Leido
+    unread: No Leido
+  jobpiechart:
+    status:
+      working: Enviando
+      onhold: Esperando
+      ready: Listo para Enviar
+      completed: Completado
+      error: Error
+
+form:
+  save: Guardar
+  cancel: Cancelar
+  send: Enviar
+  testmail: Prueba de Entrega 
+
+security:
+  login:
+    mandant:  Cliente
+  
+layout:
+  header:
+    title:
+      newsletterbundle: AGROTEMARIO
+     

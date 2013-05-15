@@ -1,0 +1,40 @@
+Subject: Titulo
+Sendermail: E-Mail del Remitente
+Sendername: Nombre del Remitente
+Returnmail: Responder E-Mail
+Subscribers: Suscriptos
+Content: Contenido
+Name: Nombre
+Subscriber: Suscriptor
+Email: E-Mail
+Groups: Grupos
+Default: Defecto
+
+Username: Username
+Password: Password
+Host: Host
+Port: Port
+Encryption: Encryption
+Authmode: Autorizacion
+Interval: Intervalo (número de newsletters / minuto)
+Starttime: Hora de Inicio 
+
+Renderername: Renderer Name (Service-Id)
+
+form:
+  save: Guardar
+  continue: Continuar 
+
+newsletter:
+  continue: Continuar
+  block:
+    clone: Clonar
+    provider:
+      'ibrows_newsletter.block.provider.textareaandimage':
+        textwidth: anchura de texto
+        imagewidth: Ancho de la Imagen
+    name: Nombre
+    new: Nuevo Bloque
+  blocks:
+    save: Guardar
+    
