@@ -21,6 +21,8 @@ newsletter:
         name: Texto con Imagen
         textwidth: Ancho de Texto
         imagewidth: Ancho de la Imagen
+      'ibrows_newsletter.block.provider.news': 
+        name: Noticias
   layout:
     index:
       title: Bienvenidos al Newsletter de Agrotemario    
@@ -36,7 +38,7 @@ newsletter:
   summary: Resumen del Newsletter "%name%"
   blocks: Bloques
   dialog:
-    abort: Abortar
+    abort: Cancelar
   gendertitle:
     male:
       formal: Estimado Sr. %subscriber.lastname%
