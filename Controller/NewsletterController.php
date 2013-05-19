@@ -387,8 +387,12 @@ class NewsletterController extends AbstractController {
 
       $mailjob->setStatus(MailJob::STATUS_READY);
 
-      $this->addNewsletterSendLog($newsletter, $subscriber, "Mail ready to send: logged by " . __METHOD__);
+      //$this->addNewsletterSendLog($newsletter, $subscriber, "Mail ready to send: logged by " . __METHOD__);/********************************/
       $objectManager->persist($mailjob);
+      if (($count % 20) === 0) {
+        $objectManager->flush();
+        $objectManager->clear(); // Detaches all objects from Doctrine!
+      }
       ++$count;
     }
 

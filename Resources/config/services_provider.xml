@@ -5,7 +5,7 @@
     xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-		<service id="ibrows_newsletter.block.provider.textarea" class="Ibrows\Bundle\NewsletterBundle\Block\Provider\TextAreaProvider">
+        <service id="ibrows_newsletter.block.provider.textarea" class="Ibrows\Bundle\NewsletterBundle\Block\Provider\TextAreaProvider">
             <call method="setBlockProviderManager">
                 <argument type="service" id="ibrows_newsletter.block_provider_manager" />
             </call>
@@ -28,6 +28,15 @@
             </call>
             <tag name="ibrows_newsletter.block.provider" />
         </service>
+        
+        <service id="ibrows_newsletter.block.provider.news" class="Ibrows\Bundle\NewsletterBundle\Block\Provider\NewsProvider">
+            <argument type="service" id="templating" strict="false" />
+            <argument type="service" id="doctrine.orm.entity_manager" strict="false" />
+            <call method="setBlockProviderManager">
+                <argument type="service" id="ibrows_newsletter.block_provider_manager" />
+            </call>
+            <tag name="ibrows_newsletter.block.provider" />
+        </service>        
     </services>
 
 </container>

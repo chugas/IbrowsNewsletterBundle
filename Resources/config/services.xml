@@ -7,16 +7,16 @@
     <services>
         <service id="ibrows_newsletter.template_manager" class="Ibrows\Bundle\NewsletterBundle\Service\TemplateManager">
             <argument>%ibrows_newsletter.templates.base_template%</argument>
-			<argument>%ibrows_newsletter.templates.mandant%</argument>
-			<argument>%ibrows_newsletter.templates.newsletter%</argument>
-			<argument>%ibrows_newsletter.templates.design%</argument>
+            <argument>%ibrows_newsletter.templates.mandant%</argument>
+            <argument>%ibrows_newsletter.templates.newsletter%</argument>
+            <argument>%ibrows_newsletter.templates.design%</argument>
             <argument>%ibrows_newsletter.templates.subscriber%</argument>
             <argument>%ibrows_newsletter.templates.statistic%</argument>
         </service>
         
         <service id="ibrows_newsletter.class_manager" class="Ibrows\Bundle\NewsletterBundle\Service\ClassManager">
-			<argument>%ibrows_newsletter.classes.model%</argument>
-			<argument>%ibrows_newsletter.classes.form%</argument>
+            <argument>%ibrows_newsletter.classes.model%</argument>
+            <argument>%ibrows_newsletter.classes.form%</argument>
         </service>
 
         <service id="ibrows_newsletter.encryption.adapter.mcrypt" class="Ibrows\Bundle\NewsletterBundle\Encryption\Adapter\McryptAdapter">
@@ -29,16 +29,16 @@
         </service>
         
         <service id="ibrows_newsletter.renderer_manager" class="Ibrows\Bundle\NewsletterBundle\Service\RendererManager">
-        		<argument type="service" id="ibrows_newsletter.block_provider_manager" />
+            <argument type="service" id="ibrows_newsletter.block_provider_manager" />
         </service>
         
         <service id="ibrows_newsletter.mailer" class="Ibrows\Bundle\NewsletterBundle\Service\MailerService">
-        		<argument type="service" id="mailer" />
-        		<argument type="service" id="swiftmailer.transport.smtp" />
+            <argument type="service" id="mailer" />
+            <argument type="service" id="swiftmailer.transport.smtp" />
         </service>
         
         <service id="ibrows_newsletter.annotation.wizard.driver" class="Ibrows\Bundle\NewsletterBundle\Annotation\Wizard\AnnotationDriver">
-			<argument type="service" id ="service_container" />
+            <argument type="service" id ="service_container" />
             <argument type="service" id ="ibrows_newsletter.annotation.wizard.handler" />
             <argument>Ibrows\Bundle\NewsletterBundle\Annotation\Wizard\Annotation</argument>
             <tag name="kernel.event_listener" event="kernel.controller" method="onKernelController" />
