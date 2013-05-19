@@ -273,14 +273,8 @@ class NewsletterController extends AbstractController {
 
     $newsletter = $this->getNewsletter();
 
-    $subscribersArray = array();
-    foreach ($newsletter->getSubscribers() as $subscriber) {
-      $subscribersArray[$subscriber->getId()] = $subscriber;
-    }
-
     $formtypeClassName = $this->getClassManager()->getForm('testmail');
     $formtype = new $formtypeClassName(
-                    $subscribersArray,
                     $this->getUser()->getEmail()
     );
 

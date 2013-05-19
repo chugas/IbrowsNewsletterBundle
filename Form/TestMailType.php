@@ -6,11 +6,9 @@ use Symfony\Component\Form\FormBuilderInterface;
 
 class TestMailType extends AbstractType {
 
-  protected $subscribers;
   protected $defaultMail;
 
-  public function __construct(array $subscribers, $defaultMail = null) {
-    $this->subscribers = $subscribers;
+  public function __construct($defaultMail = null) {
     $this->defaultMail = $defaultMail;
   }
 
@@ -21,9 +19,6 @@ class TestMailType extends AbstractType {
   public function buildForm(FormBuilderInterface $builder, array $options) {
     $builder
             ->add('email', 'email', array('data' => $this->defaultMail))
-            ->add('subscriber', 'choice', array(
-                'choices' => $this->subscribers
-            ))
     ;
   }
 
