@@ -33,8 +33,8 @@
         </service>
         
         <service id="ibrows_newsletter.mailer" class="Ibrows\Bundle\NewsletterBundle\Service\MailerService">
-            <argument type="service" id="mailer" />
-            <argument type="service" id="swiftmailer.transport.smtp" />
+          <argument type="service" id="mailer" />
+          <argument type="service" id="swiftmailer.transport.smtp" />
         </service>
         
         <service id="ibrows_newsletter.annotation.wizard.driver" class="Ibrows\Bundle\NewsletterBundle\Annotation\Wizard\AnnotationDriver">
@@ -46,7 +46,7 @@
         
         <service id="ibrows_newsletter.annotation.wizard.handler" class="Ibrows\Bundle\NewsletterBundle\Annotation\Wizard\AnnotationHandler">
             <argument type="service" id ="router" />
-        </service>
+        </service>      
     </services>
 
 </container>

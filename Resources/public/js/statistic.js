@@ -12,9 +12,9 @@ ns.statistic = function($options){
     }
 
     this.drawCharts = function(){
-        $self.drawReadPieChart();
+        //$self.drawReadPieChart();
         $self.drawJobPieChart();
-        $self.drawJobLineChart();
+        //$self.drawJobLineChart();
     }
 
     this.drawReadPieChart = function(){

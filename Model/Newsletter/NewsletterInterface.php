@@ -33,6 +33,8 @@ interface NewsletterInterface {
   public function getId();
 
   public function getHash();
+  
+  public function getBody();
 
   /**
    * @return SubscriberInterface[]

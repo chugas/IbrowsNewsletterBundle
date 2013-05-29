@@ -14,6 +14,7 @@ abstract class Newsletter implements NewsletterInterface {
   protected $id;
   protected $blocks;
   protected $mandant;
+  protected $body;
 
   /**
    * @var string
@@ -25,7 +26,7 @@ abstract class Newsletter implements NewsletterInterface {
    * @var Collection
    * @Assert\NotNull(groups={"subscriber"})
    */
-  protected $subscribers;
+  protected $newsletters_subscribers;
 
   /**
    * @var string $subject
@@ -38,7 +39,7 @@ abstract class Newsletter implements NewsletterInterface {
    * @Assert\NotBlank(groups={"newsletter"})
    */
   protected $name;
-
+  
   /**
    * @var DesignInterface $design
    * @Assert\NotBlank(groups={"newsletter"})
@@ -75,8 +76,11 @@ abstract class Newsletter implements NewsletterInterface {
    * @var SendSettingsInterface $sendSettings
    */
   protected $sendSettings;
+  
+  protected $subscribers;
 
   public function __construct() {
+    $this->newsletters_subscribers = new ArrayCollection();
     $this->subscribers = new ArrayCollection();
     $this->blocks = new ArrayCollection();
     $this->createdAt = new \DateTime();
@@ -176,21 +180,28 @@ abstract class Newsletter implements NewsletterInterface {
     $this->returnMail = $returnMail;
     return $this;
   }
-
-  /**
-   * @return Collection
-   */
+  
   public function getSubscribers() {
+    $collection = $this->getNewslettersSubscribers();
+    foreach ($collection as $newsletter_subscriber){
+      $this->subscribers[] = $newsletter_subscriber->getSubscriber();
+    }
     return $this->subscribers;
   }
 
   /**
+   * @return Collection
+   */
+  public function getNewslettersSubscribers() {
+    return $this->newsletters_subscribers;
+  }
+
+  /**
    * @param SubscriberInterface $subscriber
    * @return Newsletter
    */
-  public function removeSubscriber(SubscriberInterface $subscriber) {
-    $subscriber->removeNewsletter($this);
-    $this->subscribers->removeElement($subscriber);
+  public function removeNewsletterSubscriber($newsletter_subscriber) {
+    $this->newsletters_subscribers->removeElement($newsletter_subscriber);
     return $this;
   }
 
@@ -198,13 +209,10 @@ abstract class Newsletter implements NewsletterInterface {
    * @param SubscriberInterface $subscriber
    * @return Newsletter
    */
-  public function addSubscriber(SubscriberInterface $subscriber) {
-    if ($this->subscribers->contains($subscriber))
-      return $this;
+  public function addNewsletterSubscriber($newsletter_subscriber) {
+    $newsletter_subscriber->setNewsletter($this);
 
-    $subscriber->addNewsletter($this);
-    $this->subscribers->add($subscriber);
-    return $this;
+    $this->newsletters_subscribers[] = $newsletter_subscriber;
   }
 
   /**
@@ -238,6 +246,15 @@ abstract class Newsletter implements NewsletterInterface {
   public function getCreatedAt() {
     return $this->createdAt;
   }
+  
+  public function getStarttime() {
+    return $this->starttime;
+  }
+
+  public function setStarttime($starttime) {
+    $this->starttime = $starttime;
+    return $this;
+  } 
 
   /**
    * @return Collection
@@ -302,5 +319,22 @@ abstract class Newsletter implements NewsletterInterface {
     $this->sendSettings = $sendSettings;
     return $this;
   }
+  
+  /**
+   * @return string
+   */
+  public function getBody() {
+    return $this->body;
+  }
+
+  /**
+   * 
+   * @param $body
+   * @return Newsletter
+   */
+  public function setBody($body) {
+    $this->body = $body;
+    return $this;
+  }  
 
 }

@@ -2,6 +2,7 @@
 
 namespace Ibrows\Bundle\NewsletterBundle\Controller;
 
+use Ibrows\Bundle\NewsletterBundle\Model\Newsletter\NewsletterSubscriber;
 use Ibrows\Bundle\NewsletterBundle\Model\Job\MailJob;
 use Ibrows\Bundle\NewsletterBundle\Model\Newsletter\NewsletterInterface;
 use Ibrows\Bundle\NewsletterBundle\Model\Block\BlockInterface;
@@ -136,7 +137,19 @@ class NewsletterController extends AbstractController {
           $this->setNewsletter($newsletter);
         }
       }
-
+      
+      /*****************************************************************************************/
+      /*TEMPORAL PATCH TO SAVE BODY OF NEWSLETTER IN NEWSLETTER ENTITY - TO IMPROVE PERFORMANCE*/
+      /*THE SUBSCRIBER ENTITY IS ANYTHING ONLY TO CALL renderNewsletter METHOD*/
+      $mandant = $this->getMandant();
+      $bridge = $this->getRendererBridge();
+      $rendererManager = $this->getRendererManager();
+      $subscriber = $this->getSubscriberManager()->getFirstSubscriber();
+      $body = $rendererManager->renderNewsletter($mandant->getRendererName(), $bridge, $newsletter, $mandant, $subscriber);
+      $newsletter->setBody($body);
+      $this->setNewsletter($newsletter);
+      /*****************************************************************************************/      
+      
       $this->setNewsletter($newsletter);
 
       if ($request->request->get('continue')) {
@@ -168,7 +181,7 @@ class NewsletterController extends AbstractController {
     }
 
     $newsletter = $this->getNewsletter();
-
+   
     $formtype = $this->getClassManager()->getForm('subscriber');
     $subscriberClass = $this->getClassManager()->getModel('subscriber');
     $form = $this->createForm(new $formtype($this->getMandantName(), $subscriberClass), $newsletter);
@@ -179,6 +192,26 @@ class NewsletterController extends AbstractController {
 
       if ($form->isValid()) {
         $this->setNewsletter($newsletter);
+        /**************************************************/
+        // BULK INSERT TO IMPROVE PERFORMANCE
+        // TEMPORAL PATCH ONLY FOR MYSQL
+        $groups = $newsletter->getGroups();
+        
+        foreach ($groups as $group){
+          $page = 1;
+          do {
+            $subscribers = $this->getSubscriberManager()->findSubscribers($group->getId(), $page, 5000);
+            $continue = !empty($subscribers);
+            $this->getNewsletterSubscriberManager()->bulkInsert($newsletter, $subscribers);
+            
+            unset($subscribers);
+            
+            $page++;
+          } while($continue);
+
+        }
+        /**************************************************/
+        
         return $this->redirect($this->getWizardActionAnnotationHandler()->getNextStepUrl());
       }
     }
@@ -205,40 +238,17 @@ class NewsletterController extends AbstractController {
       return $response;
     }
 
-    $formtype = $this->getClassManager()->getForm('sendsettings');
+    $formtype = $this->getClassManager()->getForm('newslettersettings');
+    $newsletter = $this->getNewsletter();
 
-    // get send settings, if null set default values
-    $sendSettings = $this->getSendSettings();
-    if ($sendSettings === null) {
-      $sendSettings = $this->getMandant()->getSendSettings();
-      if ($sendSettings === null) {
-        $sendSettingsClass = $this->getClassManager()->getModel('sendsettings');
-        $sendSettings = new $sendSettingsClass();
-      }
-    }
-    if ($sendSettings->getStarttime() === null) {
-      $sendSettings->setStarttime(new \DateTime());
-    }
-
-    // set password non required if already defined in send settings
-    $password = $sendSettings->getPassword();
-    $password_required = $password === null;
-    $form = $this->createForm(new $formtype($password_required), $sendSettings);
+    $form = $this->createForm(new $formtype(), $newsletter);
 
     $request = $this->getRequest();
     if ($request->getMethod() == 'POST') {
-      $plainpassword = $this->decryptPassword($password);
       $form->bind($request);
 
-      // set password from send settings if necessary
-      $formpassword = $form->get('password')->getData();
-      if ($formpassword !== null) {
-        $plainpassword = $formpassword;
-      }
-
       if ($form->isValid()) {
-        $sendSettings->setPassword($plainpassword);
-        $this->setSendSettings($sendSettings);
+        $this->setNewsletter($newsletter);
         return $this->redirect($this->getWizardActionAnnotationHandler()->getNextStepUrl());
       }
     }
@@ -257,7 +267,7 @@ class NewsletterController extends AbstractController {
       return $this->redirect($handler->getStepUrl($handler->getLastValidAnnotation()));
     }
 
-    if (count($newsletter->getSubscribers()) <= 0) {
+    if (is_null($this->getSubscriberManager()->getFirstSubscriber($newsletter->getId()))) {
       return $this->redirect($this->generateUrl('ibrows_newsletter_subscriber'));
     }
   }
@@ -286,20 +296,16 @@ class NewsletterController extends AbstractController {
       $testmailform->bind($request);
 
       if ($testmailform->isValid()) {
-        $mandant = $this->getMandant();
-        $subscriberId = $testmailform->get('subscriber')->getData();
-        $subscriber = $this->getSubscriberById($newsletter, $subscriberId);
-        $bridge = $this->getRendererBridge();
+        $tomail = $testmailform->get('email')->getData();        
+        $mailjobClass = $this->getClassManager()->getModel('newsletterSubscriber');
+        $subscriberClass = $this->getClassManager()->getModel('subscriber');
+        
+        $subscriber = new $subscriberClass();
+        $subscriber->setEmail($tomail);
 
-        $overview = $this->getRendererManager()->renderNewsletter(
-                $mandant->getRendererName(), $bridge, $newsletter, $mandant, $subscriber, 'testmail'
-        );
-
-        $mailjobClass = $this->getClassManager()->getModel('mailjob');
-        $tomail = $testmailform->get('email')->getData();
-        $mailjob = new $mailjobClass($newsletter, $this->getSendSettings());
-        $mailjob->setToMail($tomail);
-        $mailjob->setBody($overview);
+        $mailjob = new $mailjobClass();
+        $mailjob->setNewsletter($newsletter);
+        $mailjob->setSubscriber($subscriber);        
 
         try {
           $this->send($mailjob);
@@ -315,7 +321,7 @@ class NewsletterController extends AbstractController {
 
     return $this->render($this->getTemplateManager()->getNewsletter('summary'), array(
                 'newsletter' => $newsletter,
-                'subscriber' => $newsletter->getSubscribers()->first(),
+                'subscriber' => $this->getSubscriberManager()->getFirstSubscriber($newsletter->getId()),
                 'mandantHash' => $this->getMandant()->getHash(),
                 'testmailform' => $testmailform->createView(),
                 'wizard' => $this->getWizardActionAnnotationHandler(),
@@ -324,21 +330,21 @@ class NewsletterController extends AbstractController {
   }
 
   /**
-   * @param MailJob $job
+   * @param NewsletterSubscriber $job
    */
-  protected function send(MailJob $job) {
+  protected function send($job) {
     $this->get('ibrows_newsletter.mailer')->send($job);
   }
 
   public function summaryValidation(WizardActionHandler $handler) {
     $newsletter = $this->getNewsletter();
-    $sendSettings = $this->getSendSettings();
+    $sendSettings = $this->getMandant()->getSendSettings();
 
     if (is_null($newsletter) || is_null($sendSettings)) {
       return $this->redirect($handler->getStepUrl($handler->getLastValidAnnotation()));
     }
 
-    if (count($newsletter->getSubscribers()) <= 0) {
+    if (is_null($this->getSubscriberManager()->getFirstSubscriber($newsletter->getId()))) {
       return $this->redirect($this->generateUrl('ibrows_newsletter_subscriber'));
     }
   }
@@ -348,49 +354,13 @@ class NewsletterController extends AbstractController {
    */
   public function generateMailJobsAction() {
     $newsletter = $this->getNewsletter();
-    $sendSettings = $this->getSendSettings();
-    $mailjobClass = $this->getClassManager()->getModel('mailjob');
+    
+    /**************************************************/
+    // TO DO BULK UPDATE STATUS TO IMPROVE PERFORMANCE
+    // TEMPORAL PATCH ONLY FOR MYSQL
 
-    $mandant = $this->getMandant();
-    $rendererManager = $this->getRendererManager();
-    $rendererName = $this->getMandant()->getRendererName();
-    $bridge = $this->getRendererBridge();
-
-    $objectManager = $this->getObjectManager();
-    $subscribers = $newsletter->getSubscribers();
-    $count = 1;
-    foreach ($subscribers as $subscriber) {
-      if ($count % $sendSettings->getInterval() === 0) {
-        $time = $sendSettings->getStarttime();
-        $time->modify('+ 1 minutes');
-        $sendSettings->setStarttime(clone $time);
-      }
-
-      $body = $rendererManager->renderNewsletter(
-              $rendererName, $bridge, $newsletter, $mandant, $subscriber
-      );
-
-      /* @var $mailjob MailJob */
-      $mailjob = new $mailjobClass($newsletter, $sendSettings);
-      $mailjob->setBody($body);
-      $mailjob->setToMail($subscriber->getEmail());
-
-      if ($subscriber instanceof SubscriberGenderTitleInterface) {
-        $mailjob->setToName($subscriber->getFirstname() . ' ' . $subscriber->getLastname());
-      }
-
-      $mailjob->setStatus(MailJob::STATUS_READY);
-
-      //$this->addNewsletterSendLog($newsletter, $subscriber, "Mail ready to send: logged by " . __METHOD__);/********************************/
-      $objectManager->persist($mailjob);
-      if (($count % 20) === 0) {
-        $objectManager->flush();
-        $objectManager->clear(); // Detaches all objects from Doctrine!
-      }
-      ++$count;
-    }
-
-    $objectManager->flush();
+    $this->getNewsletterSubscriberManager()->bulkUpdate($newsletter);
+    /**************************************************/
 
     return $this->redirect($this->generateUrl('ibrows_newsletter_statistic_show', array('newsletterId' => $newsletter->getId())));
   }

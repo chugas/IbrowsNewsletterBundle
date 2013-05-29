@@ -4,129 +4,98 @@ namespace Ibrows\Bundle\NewsletterBundle\Controller;
 
 use Ibrows\Bundle\NewsletterBundle\Model\Log\LogInterface;
 use Ibrows\Bundle\NewsletterBundle\Model\Job\JobInterface;
-
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @Route("/statistic")
  */
-class StatisticController extends AbstractHashMandantController
-{
-    const TRANSPARENT_GIF = 'R0lGODlhAQABAIAAAP///////yH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+class StatisticController extends AbstractHashMandantController {
 
-    /**
-     * @Route("/log/read/{mandantHash}/{newsletterHash}/{subscriberHash}", name="ibrows_newsletter_statistic_log_read")
-     */
-    public function logreadAction($mandantHash, $newsletterHash, $subscriberHash)
-    {
-        $this->setMandantNameByHash($mandantHash);
+  const TRANSPARENT_GIF = 'R0lGODlhAQABAIAAAP///////yH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
 
-        $newsletter = $this->getNewsletterByHash($newsletterHash);
-        $subscriber = $this->getSubscriberByHash($newsletter, $subscriberHash);
+  /**
+   * @Route("/log/read/{mandantHash}/{newsletterHash}/{subscriberHash}", name="ibrows_newsletter_statistic_log_read")
+   */
+  public function logreadAction($mandantHash, $newsletterHash, $subscriberHash) {
+    $this->setMandantNameByHash($mandantHash);
 
-        // if no context is set, its live --> log
-        if(!$this->getRequest()->query->get('context')){
-            $this->addNewsletterReadLog($newsletter, $subscriber, "Newsletter read: logged by ".__METHOD__);
-        }
+    $newsletter = $this->getNewsletterByHash($newsletterHash);
+    $subscriber = $this->getSubscriberByHash($newsletter, $subscriberHash);
 
-        return new Response(base64_decode(self::TRANSPARENT_GIF), 200, array(
-            'Content-Type' => 'image/gif'
-        ));
+    // if no context is set, its live --> log
+    if (!$this->getRequest()->query->get('context')) {
+      $this->addNewsletterReadLog($newsletter, $subscriber, "Newsletter read: logged by " . __METHOD__);
     }
 
-    /**
-     * @Route("/show/{newsletterId}", name="ibrows_newsletter_statistic_show")
-     */
-    public function showAction($newsletterId)
-    {
-        $newsletter = $this->getNewsletterById($newsletterId);
+    return new Response(base64_decode(self::TRANSPARENT_GIF), 200, array(
+                'Content-Type' => 'image/gif'
+            ));
+  }
 
-        $statisticManager = $this->getStatisticManager();
+  /**
+   * @Route("/show/{newsletterId}", name="ibrows_newsletter_statistic_show")
+   */
+  public function showAction($newsletterId) {
+    $newsletter = $this->getNewsletterById($newsletterId);
 
-        $sendlogs = $statisticManager->getSendLogs(array(
-            'newsletterId' => $newsletter->getId()
-        ));
-
-        $readlogs = $statisticManager->getReadLogs(array(
-            'newsletterId' => $newsletter->getId()
-        ));
-
-        $objectManager = $this->getObjectManager();
-        $jobs = $objectManager->getRepository($this->getClassManager()->getModel('mailjob'))->findBy(
+    $objectManager = $this->getObjectManager();
+    $jobs = $objectManager->getRepository($this->getClassManager()->getModel('newsletterSubscriber'))->findBy(
             array(
-                'newsletterId' => $newsletter->getId()
-            ),
-            array(
-                'status' => 'ASC'
+        'newsletter' => $newsletter->getId()
+            ), array(
+        'status' => 'ASC'
             )
-        );
+    );
 
-        $foundSubscriberIds = array();
-        $filteredReadlogs = array_filter($readlogs, function($readlog)use(&$foundSubscriberIds){
-            $subscriberId = $readlog->getSubscriberId();
-            if(!in_array($subscriberId, $foundSubscriberIds)){
-                $foundSubscriberIds[] = $subscriberId;
-                return true;
-            }
-            return false;
-        });
-
-        $jobPie = array();
-        foreach($jobs as $job){
-            $status = $job->getStatus();
-            if(!isset($jobPie[$status])){
-                $jobPie[$status] = 0;
-            }
-            $jobPie[$status]++;
-        }
-
-        $jobStati = array_keys($jobPie);
-
-        $jobsSortedByCompleted = $jobs;
-        usort($jobsSortedByCompleted, function($a, $b){
-            $dateA = $a->getCompleted() ?: $a->getCreated();
-            $dateB = $b->getCompleted() ?: $b->getCreated();
-            return $dateA > $dateB;
-        });
-
-        $jobLine = array();
-        $jobWalkLine = array();
-        foreach($jobsSortedByCompleted as $job){
-
-            $dateTime = $job->getCompleted() ?: $job->getCreated();
-            $date = $dateTime->format('d.m.Y H:i:s');
-
-            foreach($jobStati as $jobStatus){
-                if(!isset($jobWalkLine[$jobStatus])){
-                    $jobWalkLine[$jobStatus] = 0;
-                }
-
-                if(!isset($jobLine[$date])){
-                    $jobLine[$date] = array();
-                }
-
-                if($job->getStatus() == $jobStatus){
-                    $jobLine[$date][$jobStatus] = ++$jobWalkLine[$jobStatus];
-                }else{
-                    $jobLine[$date][$jobStatus] = $jobWalkLine[$jobStatus];
-                }
-            }
-        }
-        
-        $completedAmount = array_key_exists(JobInterface::STATUS_COMPLETED, $jobPie)?$jobPie[JobInterface::STATUS_COMPLETED]: 0;
-        $readAmount = count($filteredReadlogs);
-        $unreadAmount = $completedAmount-$readAmount;
-
-        return $this->render($this->getTemplateManager()->getStatistic('show'), array(
-            'newsletter' => $newsletter,
-            'read' => $readAmount,
-            'unread' => $unreadAmount,
-            'jobPie' => $jobPie,
-            'jobLine' => $jobLine,
-            'jobStati' => $jobStati
-        ));
+    $jobPie = array();
+    foreach ($jobs as $job) {
+      $status = $job->getStatus();
+      if (!isset($jobPie[$status])) {
+        $jobPie[$status] = 0;
+      }
+      $jobPie[$status]++;
     }
+
+    $jobStati = array_keys($jobPie);
+
+    $jobsSortedByCompleted = $jobs;
+    usort($jobsSortedByCompleted, function($a, $b) {
+              $dateA = $a->getCompleted() ? : new \DateTime('now - 15 days');
+              $dateB = $b->getCompleted() ? : new \DateTime('now - 15 days');
+              return $dateA > $dateB;
+            });
+
+    $jobLine = array();
+    $jobWalkLine = array();
+    foreach ($jobsSortedByCompleted as $job) {
+
+      $dateTime = $job->getCompleted() ? : new \DateTime('now - 15 days');
+      $date = $dateTime->format('d.m.Y H:i:s');
+
+      foreach ($jobStati as $jobStatus) {
+        if (!isset($jobWalkLine[$jobStatus])) {
+          $jobWalkLine[$jobStatus] = 0;
+        }
+
+        if (!isset($jobLine[$date])) {
+          $jobLine[$date] = array();
+        }
+
+        if ($job->getStatus() == $jobStatus) {
+          $jobLine[$date][$jobStatus] = ++$jobWalkLine[$jobStatus];
+        } else {
+          $jobLine[$date][$jobStatus] = $jobWalkLine[$jobStatus];
+        }
+      }
+    }
+
+    return $this->render($this->getTemplateManager()->getStatistic('show'), array(
+                'newsletter' => $newsletter,
+                'jobPie' => $jobPie,
+                'jobLine' => $jobLine
+            ));
+  }
+
 }

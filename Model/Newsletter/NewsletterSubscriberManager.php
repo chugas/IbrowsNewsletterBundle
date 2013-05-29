@@ -1,8 +1,8 @@
 <?php
 
-namespace Ibrows\Bundle\NewsletterBundle\Model\Subscriber;
+namespace Ibrows\Bundle\NewsletterBundle\Model\Newsletter;
 
-abstract class SubscriberManager implements SubscriberManagerInterface {
+abstract class NewsletterSubscriberManager {
 
   protected $class;
 

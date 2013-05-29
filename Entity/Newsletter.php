@@ -21,6 +21,11 @@ class Newsletter extends AbstractNewsletter {
    * @ORM\Column(type="string")
    */
   protected $hash;
+  
+  /**
+   * @ORM\Column(type="text", nullable=true)
+   */
+  protected $body;  
 
   /**
    * @ORM\Column(type="string", name="sender_mail")
@@ -41,5 +46,10 @@ class Newsletter extends AbstractNewsletter {
    * @ORM\Column(type="datetime", name="created_at")
    */
   protected $createdAt;
+  
+  /**
+   * @ORM\Column(type="datetime", nullable=true)
+   */
+  protected $starttime;
 
 }

@@ -10,26 +10,8 @@
     <script type="text/javascript">
         var $statistic = new ibrows_newsletter.statistic({
             selectors: {
-                readPieChart: 'read-pie-chart',
                 jobPieChart: 'job-pie-chart',
                 jobLineChart: 'job-line-chart'
-            },
-            readPieChart: {
-                data: [
-                    ['{{ 'statistic.readpiechart.emails'|trans }}', '{{ 'statistic.readpiechart.amount'|trans }}'],
-                    ['{{ 'statistic.readpiechart.read'|trans }}', {{ read }}],
-                    ['{{ 'statistic.readpiechart.unread'|trans }}', {{ unread }}]
-                ],
-                options: {
-                    fontName: 'Verdana',
-                    is3D: true,
-                    legend: {
-                        position: 'left'
-                    },
-                    colors: [
-                        'green', 'red'
-                    ]
-                }
             },
             jobPieChart: {
                 data: [
@@ -43,18 +25,10 @@
                     is3D: true,
                     legend: {
                         position: 'left'
-                    }
-                }
-            },
-            jobLineChart: {
-                data: [
-                    ['{{ 'statistic.jobpiechart.date'|trans }}',{% for status in jobStati %}'{{ ('statistic.jobpiechart.status.'~status)|trans }}'{% if(loop.last == false) %},{% endif %}{% endfor %}],
-                    {% for date, job in jobLine %}
-                        ['{{ date }}',{{ jobLine[date]|join(",")|raw }}]{% if(loop.last == false) %},{% endif %}
-                    {% endfor %}
-                ],
-                options: {
-
+                    },
+                    colors: [
+                        'green', 'red', 'blue', 'yellow', 'black'
+                    ]
                 }
             }
         });
@@ -65,10 +39,6 @@
 {% block newsletter_content %}
     <h1>{{ 'statistic.title'|trans({'%name%': newsletter.name}) }}</h1>
 
-    <div id="read-pie-chart"></div>
     <div id="job-pie-chart"></div>
 
-    <div class="clear" />
-
-    <div id="job-line-chart"></div>
 {% endblock %}

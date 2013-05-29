@@ -2,13 +2,12 @@
 
 namespace Ibrows\Bundle\NewsletterBundle\Service;
 
-use Ibrows\Bundle\NewsletterBundle\Model\Job\MailJob;
-
 class MailerService {
 
   protected $mailer;
   protected $transport;
   protected $encryption;
+  protected $container;
 
   public function __construct($mailer, $transport, $encryption) {
     $this->mailer = $mailer;
@@ -16,26 +15,30 @@ class MailerService {
     $this->encryption = $encryption;
   }
 
-  public function send(MailJob $job) {
+  public function send($job) {
+    $newsletter = $job->getNewsletter();
+    $subscriber = $job->getSubscriber();
+    $mandant = $newsletter->getMandant();
+    $sendSettings = $mandant->getSendSettings();    
     $message = \Swift_Message::newInstance()
-            ->setSubject($job->getSubject())
-            ->setFrom(array($job->getSenderMail() => $job->getSenderName()))
-            ->setReturnPath($job->getReturnMail())
-            ->setBody($job->getBody())
-            ->setContentType('text/html')
-    ;
+            ->setSubject($newsletter->getSubject())
+            ->setFrom(array($newsletter->getSenderMail() => $newsletter->getSenderName()))
+            ->setReturnPath($newsletter->getReturnMail())
+            ->setBody($newsletter->getBody())
+            ->setContentType('text/html');
 
-    $to = $job->getToName() ? array($job->getToMail() => $job->getToName()) : $job->getToMail();
+    $name = $subscriber->getFirstname() . ' ' . $subscriber->getLastname();
+    $to = array($subscriber->getEmail() => (trim($name) == '' ? $subscriber->getEmail() : $name));
     $message->setTo($to);
 
-    $this->transport->setUsername($job->getUsername());
-    $password = $this->encryption->decrypt($job->getPassword(), $job->getSalt());
+    $this->transport->setUsername($sendSettings->getUsername());
+    $password = $this->encryption->decrypt($sendSettings->getPassword(), $mandant->getSalt());
     $this->transport->setPassword($password);
 
-    $this->transport->setHost($job->getHost());
-    $this->transport->setPort($job->getPort());
-    $this->transport->setEncryption($job->getEncryption());
-    $this->transport->setAuthMode($job->getAuthMode());
+    $this->transport->setHost($sendSettings->getHost());
+    $this->transport->setPort($sendSettings->getPort());
+    $this->transport->setEncryption($sendSettings->getEncryption());
+    $this->transport->setAuthMode($sendSettings->getAuthMode());
 
     $this->mailer->newInstance($this->transport)->send($message);
   }

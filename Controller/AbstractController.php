@@ -178,6 +178,21 @@ abstract class AbstractController extends Controller {
   protected function getNewsletterManager() {
     return $this->getMandantManager()->getNewsletterManager($this->getMandantName());
   }
+  
+
+  /**
+   * @return NewsletterManager
+   */
+  protected function getSubscriberManager() {
+    return $this->getMandantManager()->getSubscriberManager($this->getMandantName());
+  }
+  
+  /**
+   * @return NewsletterManager
+   */
+  protected function getNewsletterSubscriberManager() {
+    return $this->getMandantManager()->getNewsletterSubscriberManager($this->getMandantName());
+  }
 
   /**
    * @return DesignManager

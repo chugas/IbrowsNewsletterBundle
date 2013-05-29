@@ -25,11 +25,13 @@ class MandantManager extends BaseMandantManager {
   protected $readLogClass;
   protected $sendLogClass;
   protected $unsubscribeLogClass;
+  protected $newsletterSubscriberClass;
   protected $newsletterManager;
   protected $designManager;
   protected $subscriberManager;
   protected $statisticManager;
   protected $userProvider;
+  protected $newsletterSubscriberManager;
 
   public function __construct(
   Registry $doctrine, ClassManager $classManager, $mandants
@@ -45,6 +47,7 @@ class MandantManager extends BaseMandantManager {
     $this->readLogClass = $classManager->getModel('readlog');
     $this->sendLogClass = $classManager->getModel('sendlog');
     $this->unsubscribeLogClass = $classManager->getModel('unsubscribelog');
+    $this->newsletterSubscriberClass = $classManager->getModel('newsletterSubscriber');
   }
 
   public function get($name) {
@@ -101,6 +104,16 @@ class MandantManager extends BaseMandantManager {
 
     return $this->designManager;
   }
+  
+  public function getNewsletterSubscriberManager($name){
+    if ($this->newsletterSubscriberManager === null) {
+      $manager = $this->getObjectManager($name);
+      $repository = $manager->getRepository($this->newsletterSubscriberClass);
+      $this->newsletterSubscriberManager = new NewsletterSubscriberManager($repository, $this->doctrine->getConnection($name));
+    }
+
+    return $this->newsletterSubscriberManager;
+  }  
 
   public function getStatisticManager($name) {
     if ($this->statisticManager === null) {

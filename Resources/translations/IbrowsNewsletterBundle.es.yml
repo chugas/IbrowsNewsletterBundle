@@ -82,8 +82,8 @@ subscriber:
   email: E-Mail
   groups: Grupos
   multiselect:
-    selectable: Vorhandene Empfänger | Selectable
-    selected:   Ausgewählte Empfänger | Selected
+    selectable: Seleccione el Grupo
+    selected:   Grupos Seleccionados
 
 design:
   create: Nuevo Diseño
@@ -109,7 +109,7 @@ statistic:
       working: Enviando
       onhold: Esperando
       ready: Listo para Enviar
-      completed: Completado
+      completed: Enviados
       error: Error
 
 form:
