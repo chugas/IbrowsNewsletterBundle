@@ -11,7 +11,7 @@
         {% block head_styles %}
         
             {# CSS libraries START #}
-                {% stylesheets filter='cssrewrite'
+                {% stylesheets output='css/compiled/ibrowsNewsletterLibs.css' filter='cssrewrite' 
                     'bundles/ibrowsnewsletter/bootstrap/css/*.css'
                     'bundles/ibrowsnewsletter/jquery/css/ui-lightness/*.css'
                 %}
@@ -20,7 +20,7 @@
             {# CSS libraries END #}
                     
             {# CSS custom START #}
-                {% stylesheets filter='cssrewrite'
+                {% stylesheets output='css/compiled/ibrowsNewsletterCustom.css' filter='cssrewrite' 
                     'bundles/ibrowsnewsletter/css/*.css'
                 %}
                     <link rel="stylesheet" type="text/css" media="screen" href="{{ asset_url }}" />
@@ -48,7 +48,8 @@
         {% block head_javascripts %}
                 
             {% javascripts
-                '@IbrowsNewsletterBundle/Resources/public/jquery/js/*.js'
+                '@IbrowsNewsletterBundle/Resources/public/jquery/js/*.js' 
+                filter='yui_js' output='js/compiled/ibrowsNewsletter.js' 
             %}
                 <script type="text/javascript" src="{{ asset_url }}"></script>
             {% endjavascripts %}
@@ -62,7 +63,8 @@
                     '@IbrowsNewsletterBundle/Resources/public/bootstrap/js/*.js'
                     '@IbrowsNewsletterBundle/Resources/public/bootstrap/js/plugins/*.js'
                     '@IbrowsNewsletterBundle/Resources/public/jquery/js/*.js'
-                    '@IbrowsNewsletterBundle/Resources/public/jquery/js/plugins/*.js'
+                    '@IbrowsNewsletterBundle/Resources/public/jquery/js/plugins/*.js' 
+                    filter='yui_js' output='js/compiled/ibrowsNewsletterLibs.js'
                 %}
                     <script type="text/javascript" src="{{ asset_url }}"></script>
                 {% endjavascripts %}
@@ -70,7 +72,8 @@
                     
             {# JS custom START #}
                 {% javascripts 
-                    '@IbrowsNewsletterBundle/Resources/public/js/*.js'
+                    '@IbrowsNewsletterBundle/Resources/public/js/*.js' 
+                    filter='yui_js' output='js/compiled/ibrowsNewsletterCustom.js'
                 %}
                     <script type="text/javascript" src="{{ asset_url }}"></script>
                 {% endjavascripts %}
