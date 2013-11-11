@@ -16,6 +16,7 @@ class DesignType extends AbstractType {
             ->add('content', null, array(
                 'required' => false,
                     //'attr' => array('class' => 'tinymce')
+                    //{{bridge.unsubscribelink(mandant,newsletter,subscriber,context)}}
             ))
     ;
   }
